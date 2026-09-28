@@ -19,19 +19,17 @@ final class GoogleRouteResponseMapper
     }
 
     /**
-     * @param bool $includeLegs           Pernas sao opt-in no contrato do pacote. O field
-     *                                      mask ja omite `routes.legs` quando ninguem pediu,
-     *                                      mas honrar o flag aqui tambem e o que garante a
-     *                                      simetria com o HERE: sem includeLegs, NENHUM
-     *                                      provider devolve pernas, independente do que a
-     *                                      resposta trouxer.
-     * @param bool $didOptimize  Mesma razao para optimizedOrder, que o DTO Route
-     *                                      documenta como "vazio sem otimizacao".
-     */
-    /**
-     * @param bool $askedForAlternatives Mesma razao de `incluirPernas`: sem pedido, NENHUM
-     *                                provider devolve alternativas, ainda que a resposta
-     *                                traga — simetria antes de generosidade.
+     * @param bool $includeLegs          Pernas sao opt-in no contrato do pacote. O field
+     *                                   mask ja omite `routes.legs` quando ninguem pediu,
+     *                                   mas honrar o flag aqui tambem e o que garante a
+     *                                   simetria com o HERE: sem includeLegs, NENHUM
+     *                                   provider devolve pernas, independente do que a
+     *                                   resposta trouxer.
+     * @param bool $didOptimize          Mesma razao para optimizedOrder, que o DTO Route
+     *                                   documenta como "vazio sem otimizacao".
+     * @param bool $askedForAlternatives Mesma razao de $includeLegs: sem pedido, NENHUM
+     *                                   provider devolve alternativas, ainda que a resposta
+     *                                   traga — simetria antes de generosidade.
      */
     public function toRoute(
         array $response,

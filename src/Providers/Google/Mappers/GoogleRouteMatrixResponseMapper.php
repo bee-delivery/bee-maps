@@ -112,12 +112,11 @@ final class GoogleRouteMatrixResponseMapper
     }
 
     /**
-     * @param array<string, mixed> $error
-     */
-    /**
      * O erro do Google costuma ser um objeto, mas nao ha garantia: aceitar so
      * array fazia a guarda pular um `error` de outro tipo, e o corpo voltava a
      * ser lido como elemento de matriz — o par fantasma que a guarda impede.
+     *
+     * @param array<string, mixed>|mixed $error
      */
     private function apiError(mixed $error, string $context): ProviderRequestException
     {
