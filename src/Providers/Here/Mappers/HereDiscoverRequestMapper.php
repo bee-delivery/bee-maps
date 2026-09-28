@@ -30,7 +30,7 @@ final class HereDiscoverRequestMapper
 
         $country = $request->region ?? $region;
 
-        if ($country === null || $country === '') {
+        if ($country === '') {
             throw new InvalidRequestException(
                 'O Discover do HERE exige contexto geografico: informe PlaceSearchRequest::$near, '
                 . 'PlaceSearchRequest::$region, ou configure bee-maps.defaults.region.',

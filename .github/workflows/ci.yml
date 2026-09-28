@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4']
+        laravel: ['10', '11', '12']
+        include:
+          - laravel: '10'
+            testbench: '^8.0'
+          - laravel: '11'
+            testbench: '^9.0'
+          - laravel: '12'
+            testbench: '^10.0'
+        exclude:
+          # O Laravel 10 suporta ate o PHP 8.3; o testbench 8 nao roda em 8.4.
+          - php: '8.4'
+            laravel: '10'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      # O larastan exige illuminate ^11, mas o pacote suporta ^10: na perna do
+      # Laravel 10 ele sai do require-dev, senao a resolucao falha antes de
+      # rodar qualquer teste. A analise estatica tem job proprio.
+      - name: Drop larastan on the Laravel 10 leg
+        if: matrix.laravel == '10'
+        run: composer remove --dev larastan/larastan --no-update
+
+      - name: Install dependencies
+        run: |
+          composer require --dev "orchestra/testbench:${{ matrix.testbench }}" --no-update
+          composer update --prefer-dist --no-interaction --no-progress
+
+      # Sem chave no ambiente, de proposito: e o cenario de qualquer
+      # contribuidor, e a suite tem que passar limpa nele. Os testes do grupo
+      # `live` ficam de fora pelo phpunit.xml e pulam pelo requireKey().
+      - name: Run tests
+        run: vendor/bin/phpunit
+
+  static-analysis:
+    name: PHPStan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --no-progress
+
+  audit:
+    name: Security audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Audit dependencies
+        run: composer audit

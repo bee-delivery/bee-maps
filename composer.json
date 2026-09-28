@@ -22,6 +22,7 @@
         "illuminate/http": "^10.0|^11.0|^12.0"
     },
     "require-dev": {
+        "larastan/larastan": "^3.0",
         "orchestra/testbench": "^8.0|^9.0|^10.0",
         "phpunit/phpunit": "^10.5|^11.0"
     },
@@ -47,5 +48,10 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit",
+        "test:live": "phpunit --group live",
+        "analyse": "phpstan analyse --no-progress"
+    }
 }

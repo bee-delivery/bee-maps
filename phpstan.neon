@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+    # google/apiclient entra como `suggest`, nao como `require`: sem ele no
+    # vendor o analisador nao enxerga Google\Client, que e exatamente o caminho
+    # guardado por class_exists() em ServiceAccountToken.
+    ignoreErrors:
+        -
+            identifier: class.notFound
+            path: src/Providers/Google/Optimization/ServiceAccountToken.php

@@ -34,6 +34,7 @@ final class MapsHttpClient
      *
      * @var array{calls: int, durationMs: float, status: int}|null
      */
+    /** @var array{calls: int, durationMs: float, status: int}|null */
     private ?array $currentOperation = null;
 
     public function get(Provider $provider, Service $service, string $url, array $query = [], array $headers = []): array
@@ -64,8 +65,7 @@ final class MapsHttpClient
         try {
             return $steps();
         } finally {
-            $accumulated = $this->currentOperation;
-            $this->currentOperation = $previous;
+            $accumulated = $this->takeOperation($previous);
 
             if ($accumulated['calls'] > 0) {
                 $this->events->dispatch(new MapRequestCompleted(
@@ -77,6 +77,22 @@ final class MapsHttpClient
                 ));
             }
         }
+    }
+
+    /**
+     * Fecha o acumulador e restaura o anterior. E metodo proprio porque quem
+     * incrementa e o record(), chamado la dentro do callable: lido inline, o
+     * acumulador ainda parece o literal zerado de duas linhas acima.
+     *
+     * @param  array{calls: int, durationMs: float, status: int}|null $previous
+     * @return array{calls: int, durationMs: float, status: int}
+     */
+    private function takeOperation(?array $previous): array
+    {
+        $accumulated = $this->currentOperation ?? ['calls' => 0, 'durationMs' => 0.0, 'status' => 0];
+        $this->currentOperation = $previous;
+
+        return $accumulated;
     }
 
     private function pending(array $headers): PendingRequest
@@ -184,7 +200,7 @@ final class MapsHttpClient
         $error = $body['error'] ?? $body[0]['error'] ?? null;
 
         $code = $error['status'] ?? $error['code'] ?? null;
-        $message = $this->redactCredentials($error['message'] ?? $response->reason() ?? 'falha na chamada ao provider');
+        $message = $this->redactCredentials($error['message'] ?? ($response->reason() ?: 'falha na chamada ao provider'));
 
         // Preserva null: providerCode() é ?string justamente para distinguir
         // "o provider não mandou código" de "mandou um código". Um (string) aqui

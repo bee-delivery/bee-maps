@@ -590,6 +590,14 @@ Os testes `live` são a exceção e por isso ficam **excluídos por padrão** no
 
 O gate de chave é **por provedor**: com só uma das duas no ambiente, o smoke daquele provedor roda e o do outro pula.
 
+## Análise estática
+
+```bash
+composer analyse                    # PHPStan (level 5) + larastan sobre src/
+```
+
+Roda no CI junto com a suíte (PHP 8.3/8.4 × Laravel 10/11/12) e com o `composer audit`.
+
 ## Licença
 
 MIT. Ver [LICENSE](LICENSE).

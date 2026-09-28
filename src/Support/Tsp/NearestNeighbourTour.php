@@ -96,9 +96,10 @@ final class NearestNeighbourTour
             static fn (int $node): bool => $node !== $origin && $node !== $end,
         );
 
+        // sort() ja reindexa: nao cabe array_values depois dele.
         sort($pending);
 
-        return array_values($pending);
+        return $pending;
     }
 
     /**
