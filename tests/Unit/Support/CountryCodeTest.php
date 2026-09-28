@@ -31,6 +31,26 @@ final class CountryCodeTest extends TestCase
         CountryCode::toAlpha3('XX');
     }
 
+    public function test_toAlpha3_throws_on_an_invalid_alpha3_code(): void
+    {
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageMatches('/XXX/');
+
+        CountryCode::toAlpha3('XXX');
+    }
+
+    /**
+     * O caso real: um typo em `countries: ['BRZ']` passava batido e so estourava
+     * como 400 generico do provider, longe de quem escreveu o typo.
+     */
+    public function test_toAlpha3_throws_on_a_three_letter_typo(): void
+    {
+        $this->expectException(InvalidRequestException::class);
+        $this->expectExceptionMessageMatches('/BRZ/');
+
+        CountryCode::toAlpha3('BRZ');
+    }
+
     public function test_toAlpha2_converts_alpha3(): void
     {
         $this->assertSame('BR', CountryCode::toAlpha2('BRA'));

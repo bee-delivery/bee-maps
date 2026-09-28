@@ -92,7 +92,17 @@ final class CountryCode
         $code = strtoupper($country);
 
         if (strlen($code) === 3) {
-            return $code;
+            // Validar aqui e o espelho do que toAlpha2 ja fazia nos dois formatos.
+            // Sem isto, 'BRZ' passava direto e o typo so aparecia como 400
+            // generico do provider, longe de quem escreveu o typo.
+            if (isset(self::alpha2()[$code])) {
+                return $code;
+            }
+
+            throw new InvalidRequestException(sprintf(
+                'O codigo de pais "%s" nao e um codigo ISO 3166-1 alpha-3 valido.',
+                $country,
+            ));
         }
 
         if (isset(self::ALPHA3[$code])) {
