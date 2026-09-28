@@ -588,6 +588,8 @@ Nenhum teste da suíte padrão toca a rede — `Http::preventStrayRequests()` es
 
 Os testes `live` são a exceção e por isso ficam **excluídos por padrão** no `phpunit.xml`. Eles precisam de `GOOGLE_MAPS_KEY` e `HERE_API_KEY` no ambiente; sem elas, se marcam como skipped sem tentar a chamada. Servem para responder o que nenhum `Http::fake()` responde: o endpoint existe e a chave tem acesso a ele?
 
+O gate de chave é **por provedor**: com só uma das duas no ambiente, o smoke daquele provedor roda e o do outro pula.
+
 ## Licença
 
 MIT. Ver [LICENSE](LICENSE).

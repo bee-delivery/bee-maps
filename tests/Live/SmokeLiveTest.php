@@ -79,23 +79,26 @@ final class SmokeLiveTest extends TestCase
     }
 
     /**
-     * So os provedores com chave no ambiente. Rodar o smoke com uma chave so
-     * exercita aquele provedor em vez de pular tudo — e o testdox mostra quais
-     * casos correram, entao a cobertura parcial fica visivel.
+     * Sempre os dois provedores. Filtrar aqui pelas chaves do ambiente parecia
+     * dar um recorte melhor no testdox, mas o PHPUnit resolve o dataProvider na
+     * COLETA, antes do filtro de grupo: sem chave nenhuma o provider voltava
+     * vazio e os 13 metodos parametrizados viravam erro ("Empty data set"), com
+     * a suite inteira saindo 2 mesmo com --exclude-group live. O recorte por
+     * provedor mora no requireKey() de cada teste, que pula como skipped.
      */
     public static function providers(): array
     {
-        $all = [
+        return [
             'google' => [Provider::Google],
             'here' => [Provider::Here],
         ];
-
-        return array_filter($all, fn (array $case) => self::key($case[0]) !== null);
     }
 
     #[DataProvider('providers')]
     public function test_autocomplete_without_coordinates_responds(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $collection = $this->app->make(MapServiceFactory::class)
             ->autocomplete($provider)
             ->suggest(new AutocompleteRequest('Avenida Paulista'));
@@ -140,6 +143,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_autocomplete_with_coordinates_and_the_default_radius_responds(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         // Esta e a chamada que dava 400 no HERE: near presente e radiusMeters no
         // default de 50000. Nenhum teste com Http::fake pega isso, porque o fake
         // nao valida a query.
@@ -153,6 +158,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_autocomplete_with_coordinates_and_no_radius_responds(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $collection = $this->app->make(MapServiceFactory::class)
             ->autocomplete($provider)
             ->suggest(new AutocompleteRequest('Avenida Paulista', new Coordinates(-23.5615, -46.6562), null));
@@ -163,6 +170,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_geocoding_responds(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $collection = $this->app->make(MapServiceFactory::class)
             ->geocoding($provider)
             ->geocode('Avenida Paulista 1000, Sao Paulo');
@@ -174,6 +183,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_place_search_responds_with_a_structured_address(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $collection = $this->app->make(MapServiceFactory::class)
             ->placeSearch($provider)
             ->search(new PlaceSearchRequest('farmacia', new Coordinates(-23.5615, -46.6562)));
@@ -189,6 +200,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_a_simple_route_responds_with_a_polyline(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $route = $this->app->make(MapServiceFactory::class)
             ->routing($provider)
             ->route(new RouteRequest(
@@ -278,6 +291,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_a_2x2_matrix_responds(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $matrix = $this->app->make(MapServiceFactory::class)
             ->routeMatrix($provider)
             ->matrix(new RouteMatrixRequest(
@@ -332,6 +347,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_live_a_route_with_alternatives_returns_more_than_one(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $route = $this->app->make(MapServiceFactory::class)
             ->routing($provider)
             ->route(new RouteRequest(
@@ -350,6 +367,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_live_without_asking_for_alternatives_a_single_route_comes_back(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $route = $this->app->make(MapServiceFactory::class)
             ->routing($provider)
             ->route(new RouteRequest(
@@ -363,6 +382,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_live_optimizes_with_a_fixed_end(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $result = $this->app->make(MapServiceFactory::class)
             ->routeOptimization($provider)
             ->optimize(new OptimizeWaypointsRequest(
@@ -378,6 +399,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_live_optimizes_an_open_tour(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $result = $this->app->make(MapServiceFactory::class)
             ->routeOptimization($provider)
             ->optimize(new OptimizeWaypointsRequest(
@@ -392,6 +415,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_live_optimizes_with_a_return_to_origin(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         $origin = new Coordinates(-23.5615, -46.6562);
 
         $result = $this->app->make(MapServiceFactory::class)
@@ -408,6 +433,8 @@ final class SmokeLiveTest extends TestCase
     #[DataProvider('providers')]
     public function test_live_the_distance_objective_is_accepted(Provider $provider): void
     {
+        $this->requireKey($provider);
+
         // No HERE vira improveFor=distance; no Google, a matriz + TSP local.
         // A estrategia fleet_routing NAO entra no smoke: a service account nao
         // existe neste ambiente.
