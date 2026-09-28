@@ -13,8 +13,8 @@ final readonly class RouteMatrixRequest
     public array $destinations;
 
     /**
-     * @param list<Coordinates> $origins
-     * @param list<Coordinates> $destinations
+     * @param array<int, Coordinates> $origins
+     * @param array<int, Coordinates> $destinations
      */
     public function __construct(
         array $origins,

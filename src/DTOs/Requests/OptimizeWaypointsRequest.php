@@ -16,7 +16,7 @@ final readonly class OptimizeWaypointsRequest
      * @param ?Coordinates      $destination   Nulo = tour aberto: a rota termina na
      *                                         ultima parada que a otimizacao escolher.
      *                                         Igual a origem = volta ao ponto de partida.
-     * @param list<Coordinates> $intermediates Paradas a ordenar. A ordem devolvida
+     * @param array<int, Coordinates> $intermediates Paradas a ordenar. A ordem devolvida
      *                                         indexa ESTA lista.
      */
     public function __construct(

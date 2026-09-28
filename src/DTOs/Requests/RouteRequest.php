@@ -8,8 +8,11 @@ use BeeDelivery\BeeMaps\Support\ValueObjects\Coordinates;
 
 final readonly class RouteRequest
 {
+    /** @var list<Coordinates> */
+    public array $intermediates;
+
     /**
-     * @param list<Coordinates> $intermediates         Waypoints entre origem e destino.
+     * @param array<int, Coordinates> $intermediates         Waypoints entre origem e destino.
      * @param bool              $optimizeIntermediates Deixa o provider reordenar os
      *                                                 intermediarios. No HERE custa uma
      *                                                 chamada upstream a mais.
@@ -30,13 +33,20 @@ final readonly class RouteRequest
     public function __construct(
         public Coordinates $origin,
         public Coordinates $destination,
-        public array $intermediates = [],
+        array $intermediates = [],
         public TravelMode $mode = TravelMode::Drive,
         public bool $optimizeIntermediates = false,
         public bool $includePolyline = false,
         public bool $includeLegs = false,
         public int $alternatives = 0,
     ) {
+        // Mesma razao do OptimizeWaypointsRequest e do RouteMatrixRequest:
+        // array_filter preserva chaves, e uma lista com buraco quebra os dois
+        // providers por caminhos diferentes — o json_encode do Google emite
+        // objeto em vez de lista, e o mapper do HERE indexa 0..N-1 direto no
+        // array quando reordena, batendo em chave inexistente.
+        $this->intermediates = array_values($intermediates);
+
         // Teto do HERE, medido em 2026-09-23: `alternatives=7` responde 400 com
         // "Number of alternatives must be <= 6". Recusar aqui mantem os dois
         // providers com o mesmo contrato, em vez de deixar um 400 vazar so num deles.
