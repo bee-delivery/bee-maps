@@ -12,7 +12,7 @@ SDK Laravel multi-provider de geolocalização. Google Maps e HERE atrás dos me
 ## Instalação
 
 ```bash
-composer require ifha/bee-maps
+composer require beedelivery/bee-maps
 php artisan vendor:publish --tag=bee-maps-config
 ```
 

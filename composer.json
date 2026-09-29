@@ -1,5 +1,5 @@
 {
-    "name": "ifha/bee-maps",
+    "name": "beedelivery/bee-maps",
     "description": "SDK Laravel multi-provider de geolocalizacao (Google Maps, HERE)",
     "keywords": [
         "geolocation",
@@ -11,9 +11,9 @@
         "laravel"
     ],
     "license": "MIT",
-    "homepage": "https://github.com/iFHA/bee-maps",
+    "homepage": "https://github.com/bee-delivery/bee-maps",
     "support": {
-        "issues": "https://github.com/iFHA/bee-maps/issues"
+        "issues": "https://github.com/bee-delivery/bee-maps/issues"
     },
     "type": "library",
     "require": {
