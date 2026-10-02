@@ -45,6 +45,19 @@ jobs:
         if: matrix.laravel == '10'
         run: composer remove --dev larastan/larastan --no-update
 
+      # O Laravel 10 e o 11 sairam do suporte de seguranca, e ha advisory aberto
+      # que cobre as duas linhas inteiras sem release corrigida (CVE-2026-48019
+      # vale para <12.60.0). Como o Composer 2.10 recusa por padrao instalar
+      # pacote sob advisory, essas duas pernas nao resolvem mais — nao por
+      # incompatibilidade, mas por politica. Aqui a excecao e so para o
+      # laravel/framework e so nessas pernas: o resto continua bloqueado, nada
+      # e publicado a partir daqui, e quem guarda a seguranca de verdade e o job
+      # `audit`, que roda sobre a resolucao default. Enquanto o `entregame`
+      # estiver em Laravel 10, testar essa perna vale mais do que o bloqueio.
+      - name: Allow the EOL Laravel lines to resolve
+        if: matrix.laravel == '10' || matrix.laravel == '11'
+        run: composer config --json policy.advisories.ignore '["laravel/framework"]'
+
       - name: Install dependencies
         run: |
           composer require --dev "orchestra/testbench:${{ matrix.testbench }}" --no-update
