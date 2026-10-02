@@ -1,5 +1,5 @@
 {
-    "name": "beedelivery/bee-maps",
+    "name": "bee-delivery/bee-maps",
     "description": "SDK Laravel multi-provider de geolocalizacao (Google Maps, HERE)",
     "keywords": [
         "geolocation",
