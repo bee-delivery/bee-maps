@@ -6,7 +6,7 @@ SDK Laravel multi-provider de geolocalização. Google Maps e HERE atrás dos me
 
 ## Requisitos
 
-- PHP >= 8.3
+- PHP >= 8.2
 - Laravel 10, 11 ou 12
 
 ## Instalação
@@ -596,7 +596,7 @@ O gate de chave é **por provedor**: com só uma das duas no ambiente, o smoke d
 composer analyse                    # PHPStan (level 5) + larastan sobre src/
 ```
 
-Roda no CI junto com a suíte (PHP 8.3/8.4 × Laravel 10/11/12) e com o `composer audit`.
+Roda no CI junto com a suíte (PHP 8.2/8.3/8.4 × Laravel 10/11/12) e com o `composer audit`.
 
 ## Licença
 
