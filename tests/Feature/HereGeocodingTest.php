@@ -31,6 +31,8 @@ final class HereGeocodingTest extends TestCase
         $collection = $this->geocoding()->geocode('Av Paulista 1000');
 
         $this->assertCount(1, $collection);
+        // Sem `access` no item, a coordenada e o `position`.
+        $this->assertSame(-23.5615, $collection->first()->coordinates->latitude);
         Http::assertSent(fn ($r) => str_contains(urldecode($r->url()), 'q=Av Paulista 1000'));
     }
 
@@ -60,6 +62,9 @@ final class HereGeocodingTest extends TestCase
         $result = $this->geocoding()->lookup(new PlaceReference(Provider::Here, 'here:pds:place:076sxxxx-abcdef'));
 
         $this->assertNotNull($result);
+        // O lugar traz `access`: a coordenada e a da chegada pela rua.
+        $this->assertSame(-23.57048, $result->coordinates->latitude);
+        $this->assertSame(-46.64157, $result->coordinates->longitude);
         Http::assertSent(fn ($r) => str_contains(urldecode($r->url()), 'id=here:pds:place:076sxxxx-abcdef'));
     }
 

@@ -166,6 +166,8 @@ $geocoding->lookup($placeReference);   // devolve ?GeocodeResult
 
 Cada `GeocodeResult` traz `address` (`Address`), `coordinates`, `partial`, `matchScore` e `place`.
 
+**No HERE, `coordinates` é o ponto de acesso quando ele existe.** Os itens do Geocoding & Search podem trazer dois pontos: `position`, o local do estabelecimento (o meio do terreno, o prédio), e `access`, a chegada pela rua. Para entrega o que importa é onde o entregador para, então o pacote usa o primeiro `access` e cai no `position` quando não há acesso. O `access` não vem sempre. Vale para `geocode`, `reverse`, `lookup`, `placeSearch` e o `/autosuggest`, para que a sugestão e o `lookup` do mesmo lugar devolvam o mesmo ponto. O Google não tem equivalente: lá a coordenada é sempre a do resultado.
+
 ### Identificadores de lugar não atravessam provedores
 
 Um `place_id` do Google não significa nada para o HERE. `PlaceReference` registra quem o emitiu, e `lookup()` recusa referências de outro provedor em vez de responder "não encontrado":

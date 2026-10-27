@@ -31,7 +31,8 @@
         "district": "Bela Vista",
         "street": "Rua Treze de Maio"
       },
-      "position": { "lat": -23.5701, "lng": -46.6412 }
+      "position": { "lat": -23.5701, "lng": -46.6412 },
+      "access": [{ "lat": -23.57048, "lng": -46.64157 }]
     },
     {
       "title": "Rua Blumenau, Joinville - SC, Brasil",

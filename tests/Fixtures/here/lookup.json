@@ -12,5 +12,6 @@
     "postalCode": "01327-000",
     "houseNumber": "1947"
   },
-  "position": { "lat": -23.5701, "lng": -46.6412 }
+  "position": { "lat": -23.5701, "lng": -46.6412 },
+  "access": [{ "lat": -23.57048, "lng": -46.64157 }]
 }
