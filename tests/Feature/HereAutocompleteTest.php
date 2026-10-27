@@ -94,10 +94,12 @@ final class HereAutocompleteTest extends TestCase
         $this->assertEqualsWithDelta(-46.6562, $first->coordinates->longitude, 0.0001);
 
         // O item de lugar tambem traz posicao: nao e privilegio de endereco.
+        // E vem do `access` (a chegada pela rua), nao do `position`.
         $place = $collection->all()[1];
         $this->assertTrue($place->isEstablishment);
         $this->assertNotNull($place->coordinates);
-        $this->assertEqualsWithDelta(-23.5701, $place->coordinates->latitude, 0.0001);
+        $this->assertSame(-23.57048, $place->coordinates->latitude);
+        $this->assertSame(-46.64157, $place->coordinates->longitude);
     }
 
     public function test_a_search_refinement_has_no_position_just_like_it_has_no_place(): void

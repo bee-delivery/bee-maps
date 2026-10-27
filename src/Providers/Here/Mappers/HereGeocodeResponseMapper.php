@@ -5,7 +5,7 @@ namespace BeeDelivery\BeeMaps\Providers\Here\Mappers;
 use BeeDelivery\BeeMaps\DTOs\Responses\GeocodeResult;
 use BeeDelivery\BeeMaps\DTOs\Responses\GeocodeResultCollection;
 use BeeDelivery\BeeMaps\Enums\Provider;
-use BeeDelivery\BeeMaps\Support\ValueObjects\Coordinates;
+use BeeDelivery\BeeMaps\Providers\Here\HereCoordinates;
 use BeeDelivery\BeeMaps\Support\ValueObjects\PlaceReference;
 
 final class HereGeocodeResponseMapper
@@ -45,10 +45,7 @@ final class HereGeocodeResponseMapper
 
         return new GeocodeResult(
             address: $this->addresses->fromItem($item['address'] ?? [], $item['title'] ?? ''),
-            coordinates: new Coordinates(
-                (float) $item['position']['lat'],
-                (float) $item['position']['lng'],
-            ),
+            coordinates: HereCoordinates::fromItem($item),
             // O HERE nao tem equivalente ao partial_match: derivamos do queryScore.
             partial: $score !== null && $score < $this->partialThreshold,
             matchScore: $score,
