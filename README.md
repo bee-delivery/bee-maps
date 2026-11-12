@@ -164,6 +164,8 @@ $geocoding->reverse(new Coordinates(-23.5615, -46.6562));
 $geocoding->lookup($placeReference);   // devolve ?GeocodeResult
 ```
 
+**Filtros no HERE.** `city` e `postalCode` vão no `qq` (qualified query) e `country` no `in=countryCode:`. O texto da busca vai sozinho no `q`. O `qq` orienta o casamento, mas **não é filtro rígido** como o `components=postal_code:` do Google: o HERE pode devolver um item de outro CEP ou de outra cidade. Quem precisa da garantia confere `address->postalCode` e `address->city` do resultado. No Google, `administrative_area` (cidade) também é só preferência, e só `postal_code` e `country` restringem de verdade.
+
 Cada `GeocodeResult` traz `address` (`Address`), `coordinates`, `partial`, `matchScore` e `place`.
 
 **No HERE, `coordinates` é o ponto de acesso quando ele existe.** Os itens do Geocoding & Search podem trazer dois pontos: `position`, o local do estabelecimento (o meio do terreno, o prédio), e `access`, a chegada pela rua. Para entrega o que importa é onde o entregador para, então o pacote usa o primeiro `access` e cai no `position` quando não há acesso. O `access` não vem sempre. Vale para `geocode`, `reverse`, `lookup`, `placeSearch` e o `/autosuggest`, para que a sugestão e o `lookup` do mesmo lugar devolvam o mesmo ponto. O Google não tem equivalente: lá a coordenada é sempre a do resultado.

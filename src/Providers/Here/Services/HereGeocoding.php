@@ -27,7 +27,16 @@ final class HereGeocoding implements Geocoding
 
     public function geocode(string $query, ?GeocodeFilters $filters = null): GeocodeResultCollection
     {
-        $parameters = ['q' => $this->withFilters($query, $filters)];
+        $parameters = [];
+
+        if (trim($query) !== '') {
+            $parameters['q'] = $query;
+        }
+
+        $qualified = $this->qualifiedQuery($filters);
+        if ($qualified !== null) {
+            $parameters['qq'] = $qualified;
+        }
 
         if ($filters?->country !== null) {
             $parameters['in'] = 'countryCode:' . CountryCode::toAlpha3($filters->country);
@@ -61,13 +70,37 @@ final class HereGeocoding implements Geocoding
     }
 
     /**
-     * O HERE nao tem parametro "components" como o Google: cidade e CEP entram
-     * na propria busca por texto livre.
+     * Cidade e CEP vao no `qq` (qualified query), que o HERE combina com o
+     * texto livre do `q` ("hybrid query"). Antes iam colados no fim do `q`, e
+     * como o endereco quase sempre ja termina com o CEP, a restricao nao
+     * chegava ao HERE.
+     *
+     * Nao e filtro rigido como o `components=postal_code:` do Google: o HERE
+     * pode devolver item de outro CEP ou de outra cidade. Quem precisa da
+     * garantia confere `address->postalCode`/`address->city` do resultado.
      */
-    private function withFilters(string $query, ?GeocodeFilters $filters): string
+    private function qualifiedQuery(?GeocodeFilters $filters): ?string
     {
-        $parts = array_filter([$query, $filters?->city, $filters?->postalCode]);
+        $fields = array_filter(
+            ['city' => $filters?->city, 'postalCode' => $filters?->postalCode],
+            fn (?string $value) => $value !== null && trim($value) !== '',
+        );
 
-        return implode(', ', $parts);
+        if ($fields === []) {
+            return null;
+        }
+
+        $parts = [];
+        foreach ($fields as $name => $value) {
+            $parts[] = $name . '=' . $this->qualifiedValue($value);
+        }
+
+        return implode(';', $parts);
+    }
+
+    /** `;` separa os campos e `=` separa nome e valor: dentro do valor viram espaco. */
+    private function qualifiedValue(string $value): string
+    {
+        return trim((string) preg_replace('/\s+/', ' ', str_replace([';', '='], ' ', $value)));
     }
 }
