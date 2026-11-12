@@ -109,4 +109,78 @@ final class HereGeocodingTest extends TestCase
 
         $this->geocoding()->geocode('Av Paulista 1000', new GeocodeFilters(country: 'XX'));
     }
+
+    private function fakeGeocode(): void
+    {
+        Http::fake([
+            'geocode.search.hereapi.com/*' => Http::response(
+                json_decode(file_get_contents(__DIR__ . '/../Fixtures/here/geocode.json'), true),
+                200,
+            ),
+        ]);
+    }
+
+    /** @return array<string, string> */
+    private function queryOf(string $url): array
+    {
+        parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+        return $query;
+    }
+
+    public function test_postal_code_filter_goes_to_qq_and_not_to_q(): void
+    {
+        $this->fakeGeocode();
+
+        $this->geocoding()->geocode(
+            'Rua Barão de Jaguara, 100, Centro, Campinas, SP, 13015001',
+            new GeocodeFilters(postalCode: '13015001', country: 'BR'),
+        );
+
+        Http::assertSent(function ($request) {
+            $query = $this->queryOf($request->url());
+
+            return $query['q'] === 'Rua Barão de Jaguara, 100, Centro, Campinas, SP, 13015001'
+                && $query['qq'] === 'postalCode=13015001'
+                && $query['in'] === 'countryCode:BRA';
+        });
+    }
+
+    public function test_city_filter_goes_to_qq(): void
+    {
+        $this->fakeGeocode();
+
+        $this->geocoding()->geocode('Rua Barão de Jaguara, 100', new GeocodeFilters(city: 'Campinas', country: 'BR'));
+
+        Http::assertSent(fn ($request) => $this->queryOf($request->url())['qq'] === 'city=Campinas'
+            && $this->queryOf($request->url())['q'] === 'Rua Barão de Jaguara, 100');
+    }
+
+    public function test_city_and_postal_code_share_the_qq(): void
+    {
+        $this->fakeGeocode();
+
+        $this->geocoding()->geocode('Rua Barão de Jaguara, 100', new GeocodeFilters(city: 'Campinas', postalCode: '13015001'));
+
+        Http::assertSent(fn ($request) => $this->queryOf($request->url())['qq'] === 'city=Campinas;postalCode=13015001');
+    }
+
+    public function test_without_city_or_postal_code_there_is_no_qq(): void
+    {
+        $this->fakeGeocode();
+
+        $this->geocoding()->geocode('Av Paulista 1000', new GeocodeFilters(country: 'BR'));
+
+        Http::assertSent(fn ($request) => !array_key_exists('qq', $this->queryOf($request->url()))
+            && $this->queryOf($request->url())['q'] === 'Av Paulista 1000');
+    }
+
+    public function test_qq_separators_inside_a_value_are_neutralized(): void
+    {
+        $this->fakeGeocode();
+
+        $this->geocoding()->geocode('Rua X, 1', new GeocodeFilters(city: 'São Paulo;postalCode=1'));
+
+        Http::assertSent(fn ($request) => $this->queryOf($request->url())['qq'] === 'city=São Paulo postalCode 1');
+    }
 }
